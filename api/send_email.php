@@ -116,6 +116,7 @@ function createMailer() {
     $smtpUser = getSetting('email_smtp_user') ?: '';
     $smtpPass = getSetting('email_smtp_pass') ?: '';
     $fromName = getSetting('email_from_name') ?: 'Maritza Raras';
+    $companyName = getSetting('nama_perusahaan') ?: 'Spicy Lips x Bergamot Koffie';
     
     if (!$smtpUser || !$smtpPass) {
         throw new Exception('SMTP email belum dikonfigurasi. Silakan set di menu Pengaturan.');
@@ -130,7 +131,15 @@ function createMailer() {
     $mail->Port = intval($smtpPort);
     $mail->CharSet = 'UTF-8';
     
-    $mail->setFrom($smtpUser, $fromName);
+    $mail->setFrom($smtpUser, $fromName . ' - ' . $companyName);
+    $mail->addReplyTo($smtpUser, $fromName);
+    
+    // Anti-spam headers
+    $mail->XMailer = 'Spicy Lips Payroll System';
+    $mail->addCustomHeader('Organization', $companyName);
+    $mail->addCustomHeader('X-Priority', '3'); // Normal priority
+    $mail->addCustomHeader('Precedence', 'bulk');
+    $mail->Priority = 3;
     
     // Embed logo
     $logoPath = __DIR__ . '/../assets/img/logo.png';
